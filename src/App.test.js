@@ -4,7 +4,6 @@ import App from './App';
 import { shallow } from 'enzyme';
 import { configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import { doesNotReject } from 'assert';
 
 /**
  * Using Jest for the test suite https://jestjs.io/docs/en/setup-teardown
@@ -65,6 +64,25 @@ it('calls getRandomQuote on load', () => {
 })
 
 it('returns a quote object', () => {
+  global.fetch = jest.fn().mockImplementation(() => {
+      const fetchApiResult = new Promise((resolve, reject) => {
+        resolve({
+          ok: true, 
+          Id: '123', 
+          json: function() { 
+            return {
+              'author': 'John',
+              'id': 1,
+              'permalink': 'https://google.com',
+              'quote': 'Hello',
+            }
+          }
+        });
+      });
+
+      return fetchApiResult;
+  });
+
   const wrapper = shallow(<App />);
   const getRandomQuote = wrapper.instance().getRandomQuote();
   return getRandomQuote.then(result => expect(result).toEqual({
@@ -75,20 +93,43 @@ it('returns a quote object', () => {
   }));
 })
 
-// it('calls the quote API and updates the quote', () => {
+// it('handles a promise rejection', () => {
+//   global.fetch = jest.fn().mockImplementation(() => {
+//     const fetchApiResult = new Promise((resolve, reject) => {
+//         if (true === false) {
+//           resolve('Congrats');
+//         } else {
+//           reject('Sorry, this promise was rejected');
+//         }
+//       });
+
+//     return fetchApiResult;
+//   });
+
 //   const wrapper = shallow(<App />);
-//   // expect(wrapper.instance().updateQuote()).objectContaining({
-//   //   'quote': expect.any(String),
-//   //   'author': expect.any(String),
-//   // })
-//   // https://github.com/mpj/unit-testing-series/tree/c876ef875cf05deecd65b59600118d474f45c521
-//   // here is where I test getRandomQuote similar to have MPJ tested orderTotal
-//   // I want to call it here and then assert what it returns
-//   // If i call it with mocked out params, perhaps the URL and fetch, does it return what I expect
-//   // the expected return is that it calls updateQuote with the correct shape of data
-//   // after that I can test updateQuote itself
+//   const getRandomQuote = wrapper.instance().getRandomQuote();
+//   return getRandomQuote.then(e => expect(e).toMatch('Sorry, this promise was rejected'));
+// });
 
-//   // getRandomQuote(url, fetch).expect(returnedvalue).toBe(a call to updateQuote)
+it('shows default quote data if there is an API error', () => {
+    global.fetch = jest.fn().mockImplementation(() => {
+    const fetchApiResult = new Promise((resolve, reject) => {
+        if (true === false) {
+          resolve('Congrats');
+        } else {
+          reject('Sorry, this promise was rejected');
+        }
+      });
 
-//   //maybe getRandomQuote should return an object and updateQuote should call getRandomQuote otherwise getRandomQuote has some side effects
-// })
+    return fetchApiResult;
+  });
+
+  const wrapper = shallow(<App />);
+  const getRandomQuote = wrapper.instance().getRandomQuote();
+  return getRandomQuote.then(result => expect(result).toEqual({
+    'author': expect.any(String),
+    'id': expect.any(Number),
+    'permalink': expect.any(String),
+    'quote': expect.any(String),
+  }));
+});

@@ -1,5 +1,6 @@
-Need to mock out the fetch function so that I'm not actually testing the quote API.
+Work out a way to return a default object from the function when the API promise is rejected and how to test said default object
 
-I need to pass fetch into the quote function and when calling the getRandomQuote in the test the fetch that gets passed wll be a fake one that just returns some dummy data. I can then assert that the correct shape gets returned aswell as the actual values
 
-MPJ said that if your fake fetch works aswell as your real fetch in the sandbox then it should be good to go. I guess that's a tad brittle though because your code never actually tests the API for real but that goes back to not testing the API anyway
+I need to say if API promise is rejected then this function returns this default object else it returns the data from the API - NEED TO KNOW WHAT A FAILED API CALL LOOKS LIKE
+
+Why is it saying my promise rejection is unhandled?

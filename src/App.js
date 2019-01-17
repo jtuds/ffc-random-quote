@@ -30,9 +30,19 @@ class App extends Component {
   }
 
   getRandomQuote() {
-    return fetch('http://quotes.stormconsultancy.co.uk/random.json') // returns a promise
+    const quoteObject = fetch('http://quotes.stormconsultancy.co.uk/random.json') // returns a promise
     .then(response => response.json())
     .then(responseJson => responseJson)
+    .catch(() => {
+      return {
+        'author': 'James',
+        'id': 0,
+        'permalink': 'https://jtudsbury.comment',
+        'quote': `We couldn't retrieve a quote from the API so here's one from me instead`
+      }
+    });
+
+    return quoteObject;
   }
 
   render() {
